@@ -71,25 +71,22 @@ _io = [
 #         IOStandard("LVCMOS33"),
 #     ),
 
-#     # SDCard
-#     ("spisdcard", 0,
-#         Subsignal("rst",  Pins("AE24")),
-#         Subsignal("clk",  Pins("R28")),
-#         Subsignal("cs_n", Pins("T30"), Misc("PULLUP True")),
-#         Subsignal("mosi", Pins("R29"), Misc("PULLUP True")),
-#         Subsignal("miso", Pins("R26"), Misc("PULLUP True")),
-#         Misc("SLEW=FAST"),
-#         IOStandard("LVCMOS33")
-#     ),
-#     ("sdcard", 0,
-#         Subsignal("rst",  Pins("AE24"),            Misc("PULLUP True")),
-#         Subsignal("data", Pins("R26 R30 P29 T30"), Misc("PULLUP True")),
-#         Subsignal("cmd",  Pins("R29"),             Misc("PULLUP True")),
-#         Subsignal("clk",  Pins("R28")),
-#         Subsignal("cd",   Pins("P28")),
-#         Misc("SLEW=FAST"),
-#         IOStandard("LVCMOS33")
-#     ),
+    # SDCard
+    ("spisdcard", 0,
+        Subsignal("clk",  Pins("G24")),
+        Subsignal("cs_n", Pins("F24"), Misc("PULLUP True")),
+        Subsignal("mosi", Pins("G25"), Misc("PULLUP True")),
+        Subsignal("miso", Pins("F23"), Misc("PULLUP True")),
+        Misc("SLEW=FAST"),
+        IOStandard("LVCMOS33")
+    ),
+    ("sdcard", 0,
+        Subsignal("clk",  Pins("G24")),
+        Subsignal("cmd",  Pins("G25"),             Misc("PULLUP True")),
+        Subsignal("data", Pins("F23 E23 F25 F24"), Misc("PULLUP True")),
+        Misc("SLEW=FAST"),
+        IOStandard("LVCMOS33")
+    ),
 
     # DDR3 SDRAM
     ("ddram", 0,
@@ -123,22 +120,48 @@ _io = [
         Misc("VCCAUX_IO=HIGH")
     ),
 
-#     # RGMII Ethernet
-#     ("eth_clocks", 0,
-#         Subsignal("tx", Pins("AE10")),
-#         Subsignal("rx", Pins("AG10")),
-#         IOStandard("LVCMOS15")
-#     ),
-#     ("eth", 0,
-#         Subsignal("rst_n",   Pins("AH24"), IOStandard("LVCMOS33")),
-#         Subsignal("int_n",   Pins("AK16"), IOStandard("LVCMOS18")),
-#         Subsignal("mdio",    Pins("AG12"), IOStandard("LVCMOS15")),
-#         Subsignal("mdc",     Pins("AF12"), IOStandard("LVCMOS15")),
-#         Subsignal("rx_ctl",  Pins("AH11"), IOStandard("LVCMOS15")),
-#         Subsignal("rx_data", Pins("AJ14 AH14 AK13 AJ13"), IOStandard("LVCMOS15")),
-#         Subsignal("tx_ctl",  Pins(" AK14"), IOStandard("LVCMOS15")),
-#         Subsignal("tx_data", Pins("AJ12 AK11 AJ11 AK10"), IOStandard("LVCMOS15")),
-#     ),
+    # RGMII Ethernet (RTL8211FD)
+    ("eth_clocks", 0,
+        Subsignal("tx", Pins("AC2")),
+        Subsignal("rx", Pins("AB2")),
+        IOStandard("LVCMOS18")
+    ),
+    ("eth", 0,
+        Subsignal("rst_n",   Pins("Y2")),
+        Subsignal("mdio",    Pins("AF5")),
+        Subsignal("mdc",     Pins("W1")),
+        Subsignal("rx_ctl",  Pins("AF4")),
+        Subsignal("rx_data", Pins("AF3 AC3 AE2 AE1")),
+        Subsignal("tx_ctl",  Pins("Y1")),
+        Subsignal("tx_data", Pins("AC1 AB1 AB4 Y3")),
+        IOStandard("LVCMOS18"),
+    ),
+
+    # HDMI In
+    ("hdmi_in", 0,
+        Subsignal("clk_p",   Pins("F17"), IOStandard("TMDS_33")),
+        Subsignal("clk_n",   Pins("E17"), IOStandard("TMDS_33")),
+        Subsignal("data0_p", Pins("J15"), IOStandard("TMDS_33")),
+        Subsignal("data0_n", Pins("J16"), IOStandard("TMDS_33")),
+        Subsignal("data1_p", Pins("E15"), IOStandard("TMDS_33")),
+        Subsignal("data1_n", Pins("E16"), IOStandard("TMDS_33")),
+        Subsignal("data2_p", Pins("G17"), IOStandard("TMDS_33")),
+        Subsignal("data2_n", Pins("F18"), IOStandard("TMDS_33")),
+        Subsignal("scl",     Pins("H19"), IOStandard("LVCMOS33")),
+        Subsignal("sda",     Pins("F19"), IOStandard("LVCMOS33")),
+    ),
+
+    # HDMI Out
+    ("hdmi_out", 0,
+        Subsignal("clk_p",   Pins("E18"), IOStandard("TMDS_33")),
+        Subsignal("clk_n",   Pins("D18"), IOStandard("TMDS_33")),
+        Subsignal("data0_p", Pins("D19"), IOStandard("TMDS_33")),
+        Subsignal("data0_n", Pins("D20"), IOStandard("TMDS_33")),
+        Subsignal("data1_p", Pins("H17"), IOStandard("TMDS_33")),
+        Subsignal("data1_n", Pins("H18"), IOStandard("TMDS_33")),
+        Subsignal("data2_p", Pins("G19"), IOStandard("TMDS_33")),
+        Subsignal("data2_n", Pins("F20"), IOStandard("TMDS_33")),
+    ),
 ]
 
 # Connectors ---------------------------------------------------------------------------------------
@@ -165,10 +188,12 @@ class Platform(Xilinx7SeriesPlatform):
         ]
 
     def create_programmer(self):
+        return OpenOCD("openocd_xc7_ft232.cfg", "bscan_spi_xc7a325t.bit")
+
+    def create_programmer_vivado(self):
         return VivadoProgrammer(flash_part="mx25l25645g-spi-x1_x2_x4")
-        # return OpenOCD("openocd_xc7_ft232.cfg", "bscan_spi_xc7a325t.bit")
 
     def do_finalize(self, fragment):
         Xilinx7SeriesPlatform.do_finalize(self, fragment)
         self.add_period_constraint(self.lookup_request("clk50", loose=True), 1e9/50e6)
-        # self.add_platform_command("set_property DCI_CASCADE {{32}} [get_iobanks 33]")
+        self.add_platform_command("set_property DCI_CASCADE {{32}} [get_iobanks 33]")

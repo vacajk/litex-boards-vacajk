@@ -103,3 +103,8 @@ litex_boards/targets/ip/
 
 # vivado
 vivado*.jou
+
+# debug
+csr.csv
+demo*
+ter-u16b.bdf
