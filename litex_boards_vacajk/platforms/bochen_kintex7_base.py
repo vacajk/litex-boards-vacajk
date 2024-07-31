@@ -9,11 +9,7 @@ from litex.build.openocd import OpenOCD
 
 _io = [
     # Clk / Rst
-    ("clk50", 0, Pins("G22"), IOStandard("LVCMOS33")),
-#    ("clk200", 0,
-#         Subsignal("p", Pins("AD12"), IOStandard("LVDS")),
-#         Subsignal("n", Pins("AD11"), IOStandard("LVDS"))
-#     ),
+    ("clk50",       0, Pins("G22"), IOStandard("LVCMOS33")),
     ("cpu_reset_n", 0, Pins("H26"), IOStandard("LVCMOS33")),
 
     # Leds
@@ -40,36 +36,12 @@ _io = [
         IOStandard("LVCMOS33")
     ),
 
-#     # Switches
-#     ("user_sw", 0, Pins("G19"), IOStandard("LVCMOS12")),
-#     ("user_sw", 1, Pins("G25"), IOStandard("LVCMOS12")),
-#     ("user_sw", 2, Pins("H24"), IOStandard("LVCMOS12")),
-#     ("user_sw", 3, Pins("K19"), IOStandard("LVCMOS12")),
-#     ("user_sw", 4, Pins("N19"), IOStandard("LVCMOS12")),
-#     ("user_sw", 5, Pins("P19"), IOStandard("LVCMOS12")),
-#     ("user_sw", 6, Pins("P26"), IOStandard("LVCMOS33")),
-#     ("user_sw", 7, Pins("P27"), IOStandard("LVCMOS33")),
-
     # Serial
     ("serial", 0,
         Subsignal("tx", Pins("C22")),
         Subsignal("rx", Pins("B20")),
         IOStandard("LVCMOS33")
     ),
-
-#     # USB FIFO
-#     ("usb_fifo", 0, # Can be used when FT2232H's Channel A configured to ASYNC FIFO 245 mode
-#         Subsignal("data",  Pins("AD27 W27 W28 W29 Y29 Y28 AA28 AA26")),
-#         Subsignal("rxf_n", Pins("AB29")),
-#         Subsignal("txe_n", Pins("AA25")),
-#         Subsignal("rd_n",  Pins("AB25")),
-#         Subsignal("wr_n",  Pins("AC27")),
-#         Subsignal("siwua", Pins("AB28")),
-#         Subsignal("oe_n",  Pins("AC30")),
-#         Misc("SLEW=FAST"),
-#         Drive(8),
-#         IOStandard("LVCMOS33"),
-#     ),
 
     # SDCard
     ("spisdcard", 0,
@@ -137,6 +109,22 @@ _io = [
         IOStandard("LVCMOS18"),
     ),
 
+    ("eth_clocks", 1,
+        Subsignal("tx", Pins("AA2")),
+        Subsignal("rx", Pins("AA3")),
+        IOStandard("LVCMOS18")
+    ),
+    ("eth", 1,
+        Subsignal("rst_n",   Pins("W6")),
+        Subsignal("mdio",    Pins("V4")),
+        Subsignal("mdc",     Pins("V6")),
+        Subsignal("rx_ctl",  Pins("AD6")),
+        Subsignal("rx_data", Pins("AD5 AC6 AD4 AC4")),
+        Subsignal("tx_ctl",  Pins("Y6")),
+        Subsignal("tx_data", Pins("AB6 AB5 AA5 Y5")),
+        IOStandard("LVCMOS18"),
+    ),
+
     # HDMI In
     ("hdmi_in", 0,
         Subsignal("clk_p",   Pins("F17"), IOStandard("TMDS_33")),
@@ -161,6 +149,15 @@ _io = [
         Subsignal("data1_n", Pins("H18"), IOStandard("TMDS_33")),
         Subsignal("data2_p", Pins("G19"), IOStandard("TMDS_33")),
         Subsignal("data2_n", Pins("F20"), IOStandard("TMDS_33")),
+    ),
+
+    # OLDE
+    ("oled", 0,
+        Subsignal("rst_n", Pins("J21")),
+        Subsignal("cs_n",  Pins("H22")),
+        Subsignal("sclk",  Pins("J24")),
+        Subsignal("sdin",  Pins("J25")),
+        IOStandard("LVCMOS33")
     ),
 ]
 
@@ -188,7 +185,7 @@ class Platform(Xilinx7SeriesPlatform):
         ]
 
     def create_programmer(self):
-        return OpenOCD("openocd_xc7_ft232.cfg", "bscan_spi_xc7a325t.bit")
+        return OpenOCD("openocd_xc7_ft232.cfg", "bochen_kintex7_base.bit")
 
     def create_programmer_vivado(self):
         return VivadoProgrammer(flash_part="mx25l25645g-spi-x1_x2_x4")
