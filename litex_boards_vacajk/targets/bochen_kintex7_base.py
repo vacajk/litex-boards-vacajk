@@ -75,6 +75,7 @@ class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=100e6,
         with_ethernet   = False,
         with_etherbone  = False,
+        eth_phy         = 0,
         eth_ip          = "192.168.1.50",
         remote_ip       = None,
         eth_dynamic_ip  = False,
@@ -132,13 +133,15 @@ class BaseSoC(SoCCore):
         # Ethernet / Etherbone ---------------------------------------------------------------------
         if with_ethernet or with_etherbone:
             self.ethphy = LiteEthPHYRGMII(
-                clock_pads = self.platform.request("eth_clocks"),
-                pads       = self.platform.request("eth"),
-                tx_delay   = 0e-9)
+                clock_pads  = self.platform.request("eth_clocks", eth_phy),
+                pads        = self.platform.request("eth", eth_phy),
+                tx_delay    = 0e-9,
+                rx_delay    = 0e-9,
+            )
             if with_etherbone:
-                self.add_etherbone(phy=self.ethphy, data_width=32, ip_address=eth_ip, with_ethmac=with_ethernet)
+                self.add_etherbone(phy=self.ethphy, ip_address=eth_ip, with_ethmac=with_ethernet)
             elif with_ethernet:
-                self.add_ethernet(phy=self.ethphy, data_width=32, dynamic_ip=eth_dynamic_ip, local_ip=eth_ip, remote_ip=remote_ip)
+                self.add_ethernet(phy=self.ethphy, dynamic_ip=eth_dynamic_ip, local_ip=eth_ip, remote_ip=remote_ip)
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
@@ -165,7 +168,7 @@ def main():
     sdopts = parser.target_group.add_mutually_exclusive_group()
     sdopts.add_argument("--with-spi-sdcard",        action="store_true",                                    help="Enable SPI-mode SDCard support.")
     sdopts.add_argument("--with-sdcard",            action="store_true",                                    help="Enable SDCard support.")
-    viopts = parser.add_mutually_exclusive_group()
+    viopts = parser.target_group.add_mutually_exclusive_group()
     viopts.add_argument("--with-video-terminal",    action="store_true",                                    help="Enable Video Terminal (VGA).")
     viopts.add_argument("--with-video-framebuffer", action="store_true",                                    help="Enable Video Framebuffer (VGA).")
     viopts.add_argument("--with-video-colorbars",   action="store_true",                                    help="Enable Video Colorbars (VGA).")
@@ -174,14 +177,14 @@ def main():
         soc_csv             = "csr.csv",
         with_spi_flash      = True,
         with_sdram          = True,
-        with_sdcard         = True,
+        with_sdcard         = False,
 
         with_ethernet       = False,
         with_etherbone      = False,
 
-        with_video_terminal     = True,
+        with_video_terminal     = False,
         with_video_framebuffer  = False,
-        with_video_colorbars    = False,
+        with_video_colorbars    = True,
     )
 
     args = parser.parse_args()
@@ -223,6 +226,9 @@ def main():
     if args.flash:
         prog = soc.platform.create_programmer_vivado()
         prog.flash(0, builder.get_bitstream_filename(mode="flash"))
+        # prog = soc.platform.create_programmer()
+        # print(os.path.join(builder.gateware_dir))
+        # prog.flash(0, os.path.join(builder.gateware_dir))
 
 if __name__ == "__main__":
     main()

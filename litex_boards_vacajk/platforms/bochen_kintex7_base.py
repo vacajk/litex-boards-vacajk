@@ -92,7 +92,7 @@ _io = [
         Misc("VCCAUX_IO=HIGH")
     ),
 
-    # RGMII Ethernet (RTL8211FD)
+    # RGMII Ethernet (RTL8211E)
     ("eth_clocks", 0,
         Subsignal("tx", Pins("AC2")),
         Subsignal("rx", Pins("AB2")),
@@ -193,4 +193,5 @@ class Platform(Xilinx7SeriesPlatform):
     def do_finalize(self, fragment):
         Xilinx7SeriesPlatform.do_finalize(self, fragment)
         self.add_period_constraint(self.lookup_request("clk50", loose=True), 1e9/50e6)
+        self.add_period_constraint(self.lookup_request("eth_clocks:rx", 0, loose=True), 1e9/125e6)
         self.add_platform_command("set_property DCI_CASCADE {{32}} [get_iobanks 33]")
