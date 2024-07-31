@@ -108,3 +108,4 @@ vivado*.jou
 csr.csv
 demo*
 ter-u16b.bdf
+boot.bin
